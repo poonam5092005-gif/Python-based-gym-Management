@@ -1,0 +1,304 @@
+{
+  "info": {
+    "name": "Gym Management & Fitness Analytics API",
+    "_postman_id": "b0e5c7a0-1111-4a1a-9c1a-1111111a11a1",
+    "description": "Complete Postman collection covering auth, members, memberships, attendance, trainers, workout plans, and analytics endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000" },
+    { "key": "token", "value": "" },
+    { "key": "member_id", "value": "1" },
+    { "key": "trainer_id", "value": "1" },
+    { "key": "plan_id", "value": "1" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (admin/admin123)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const data = pm.response.json();",
+                  "if (data.access_token) { pm.collectionVariables.set('token', data.access_token); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register user (admin only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"trainer1\",\n  \"email\": \"trainer1@example.com\",\n  \"password\": \"trainer123\",\n  \"role\": \"TRAINER\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Members",
+      "item": [
+        {
+          "name": "Create member",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/members",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ajay Kumar\",\n  \"age\": 28,\n  \"gender\": \"MALE\",\n  \"weight\": 78.5,\n  \"height\": 175,\n  \"fitness_goal\": \"Muscle gain\",\n  \"email\": \"ajay@example.com\",\n  \"phone\": \"+91-9876543210\",\n  \"plan_type\": \"QUARTERLY\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List members",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/members?limit=50"
+          }
+        },
+        {
+          "name": "Search members",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/members?search=aarav&status=ACTIVE"
+          }
+        },
+        {
+          "name": "Get member",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/members/{{member_id}}"
+          }
+        },
+        {
+          "name": "Update member",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/members/{{member_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"weight\": 76.0,\n  \"fitness_goal\": \"Endurance\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Renew membership",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/members/{{member_id}}/memberships/renew?plan_type=MONTHLY"
+          }
+        },
+        {
+          "name": "List memberships",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/members/{{member_id}}/memberships"
+          }
+        },
+        {
+          "name": "Delete member (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/members/{{member_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Attendance",
+      "item": [
+        {
+          "name": "Record attendance",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/attendance",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"member_id\": {{member_id}},\n  \"duration_minutes\": 60\n}"
+            }
+          }
+        },
+        {
+          "name": "List attendance",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/attendance?member_id={{member_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Trainers & Workout Plans",
+      "item": [
+        {
+          "name": "Create trainer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/trainers",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Coach Rahul\",\n  \"specialization\": \"Strength\",\n  \"email\": \"rahul@example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List trainers",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/trainers"
+          }
+        },
+        {
+          "name": "Assign workout plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{base_url}}/workout-plans",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"member_id\": {{member_id}},\n  \"trainer_id\": {{trainer_id}},\n  \"name\": \"Beginner Full-Body\",\n  \"goal\": \"General fitness\",\n  \"duration_minutes\": 60,\n  \"trainer_notes\": \"Focus on form first.\",\n  \"exercises\": [\n    { \"name\": \"Squat\", \"sets\": 4, \"repetitions\": 10, \"weight_kg\": 40 },\n    { \"name\": \"Bench Press\", \"sets\": 3, \"repetitions\": 8, \"weight_kg\": 30 },\n    { \"name\": \"Plank\", \"sets\": 3, \"repetitions\": 1 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "List plans (all)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/workout-plans"
+          }
+        },
+        {
+          "name": "List plans for member",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/workout-plans?member_id={{member_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Summary KPIs",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/analytics/summary"
+          }
+        },
+        {
+          "name": "Monthly new registrations",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/analytics/registrations?months=12"
+          }
+        },
+        {
+          "name": "Attendance trends",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/analytics/attendance-trends?days=30"
+          }
+        },
+        {
+          "name": "Popular workouts",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/analytics/popular-workouts?top=10"
+          }
+        },
+        {
+          "name": "Monthly revenue",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/analytics/revenue?months=12"
+          }
+        },
+        {
+          "name": "Plan distribution",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/analytics/plan-distribution"
+          }
+        },
+        {
+          "name": "Generate all charts",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/analytics/charts/generate"
+          }
+        },
+        {
+          "name": "Download chart: member_growth",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{base_url}}/analytics/charts/member_growth"
+          }
+        }
+      ]
+    }
+  ]
+}
